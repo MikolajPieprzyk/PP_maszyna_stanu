@@ -133,9 +133,9 @@ const char* get_state_name(RobotState state, RobotConditions conditions) {
         default: return "UNKNOWN";
     }
 }
-//funkcja do napisania ok lub zle w zaleznosci od wartosci bool 
+//funkcja do napisania ok lub zle w zaleznosci od wartosci bool
 const char* Z(bool x){
-    
+
     if(x==1)
      return "ok";
     else
@@ -149,7 +149,7 @@ const char* Z(bool x){
     printf("Aktuator: ");
     printf(Z(conditions.actuator_ok));
     printf("\n");
-    printf("rgb_d_camera_ok: ");
+    printf("Kamera rgb: ");
     printf(Z(conditions.rgb_d_camera_ok));
     printf("\n");
     printf("pc: ");
@@ -162,13 +162,13 @@ const char* Z(bool x){
     printf(Z(conditions.power_status_ok));
     printf("\n");
     printf("servo: ");
-    printf(Z(conditions.servo_ok));    
+    printf(Z(conditions.servo_ok));
     printf("\n");
     printf("emergency_stop_active: ");
-    printf(Z(conditions.emergency_stop_active));    
+    printf(Z(conditions.emergency_stop_active));
     printf("\n");
     printf("safety_scanner_free: ");
-    printf(Z(conditions.safety_scanner_free));    
+    printf(Z(conditions.safety_scanner_free));
     printf("\n");
     printf("pc_to_controller_comm_ok: ");
     printf(Z(conditions.pc_to_controller_comm_ok));
@@ -182,11 +182,11 @@ const char* Z(bool x){
     printf("---------------------------- \n");
     }
 
-  
+
 //Funkcja do stanu STATE_SAFE - pokazuje wszystkie zmienne ktore nie pozwalaja na prace (safety)
 void Awaria(RobotState state, RobotConditions conditions){
         if(state==STATE_SAFE){
-            printf("-----------------\n");
+            printf("---------------------------- \n");
             printf("Bledy:\n");
             if(conditions.actuator_ok==0){
             printf("Aktuator: ");
@@ -194,7 +194,7 @@ void Awaria(RobotState state, RobotConditions conditions){
             printf("\n");}
 
             if(conditions.rgb_d_camera_ok==0){
-            printf("rgb_d_camera_ok: ");
+            printf("Kamera rgb: ");
             printf(Z(conditions.rgb_d_camera_ok));
             printf("\n");}
 
@@ -215,21 +215,21 @@ void Awaria(RobotState state, RobotConditions conditions){
 
             if(conditions.servo_ok==0){
             printf("servo: ");
-            printf(Z(conditions.servo_ok));    
+            printf(Z(conditions.servo_ok));
             printf("\n");}
 
             if(conditions.emergency_stop_active==0){
             printf("Wylacznik glowny: ");
-            printf(Z(conditions.emergency_stop_active));    
+            printf(Z(conditions.emergency_stop_active));
             printf("\n");}
 
             if(conditions.safety_scanner_free==0){
-            printf("safety_scanner_free: ");
-            printf(Z(conditions.safety_scanner_free));    
+            printf("Skaner bezpieczenstwa: ");
+            printf(Z(conditions.safety_scanner_free));
             printf("\n");}
 
             if(conditions.pc_to_controller_comm_ok==0){
-            printf("pc_to_controller_comm_ok: ");
+            printf("PC/kontroler komunikacja: ");
             printf(Z(conditions.pc_to_controller_comm_ok));
             printf("\n");}
 
@@ -242,7 +242,7 @@ void Awaria(RobotState state, RobotConditions conditions){
             printf("Polaczenie plc/servo: ");
             printf(Z(conditions.plc_to_servo_comm_ok));
             printf("\n");}
-            printf("---------------------------- \n");            
+            printf("---------------------------- \n");
         }
 }
 // Główna pętla programu
@@ -277,26 +277,26 @@ int main() {
     };
 
     // Symulacja zmiany warunkow w trakcie pracy - ta symulacja polega na ręcznej zmianie stanu zmiennej np. wyłącznika bezpieczeństwa
-    // Symulacja wyglada tak ze w kazdej iteracji programu pokazuje jaki jest stan maszyny na bazie zmiennych podanych w 
-    // "RobotConditions conditions" wyzej oraz zmianie ich w trakcie nastepnych iteracji     
+    // Symulacja wyglada tak ze w kazdej iteracji programu pokazuje jaki jest stan maszyny na bazie zmiennych podanych w
+    // "RobotConditions conditions" wyzej oraz zmianie ich w trakcie nastepnych iteracji
     for (int i = 0; i < 20; i++) {
-        
+
         printf("Iteration %d, Current State: %s\n", i, get_state_name(current_state, conditions));
         //View(current_state, conditions);
         Awaria(current_state, conditions);
-        if (i == 3) {conditions.emergency_stop_active = false; conditions.actuator_ok = false; }  // Wciśnięcia wyłącznika bezpieczeństwa
-        if (i == 5) {conditions.actuator_ok = true; } // Zwolnienie wyłącznika bezpieczeństwa
+        if (i == 3) {conditions.emergency_stop_active = false; conditions.power_status_ok = false; }  // Wciśnięcia wyłącznika bezpieczeństwa
+        if (i == 5) {conditions.power_status_ok = true; } // Zwolnienie wyłącznika bezpieczeństwa
         if (i == 6) {conditions.emergency_stop_active = true; }
         if (i == 10){conditions.autonomous_allowed = true; conditions.trajectory_tracking=true; }   // Włączenie trybu autonomicznego za pomoca sledzenia
         if (i == 13){conditions.autonomous_allowed = false; conditions.trajectory_tracking=false; }    // Wyłączenie trybu autonomicznego
         if (i == 15) conditions.joystick_allowed = true;        // Włączenie trybu joysticka
-        if (i == 16) conditions.power_status_ok = false;        // Awaria zasilania podczas sterowania recznego
-        if (i == 17) conditions.power_status_ok = true;         // Awaria zasilania minela
         if (i == 19) conditions.joystick_allowed = false;       // Wyłączenie trybu joysticka
-    
+
         // Aktualizacja stanu na podstawie warunków
         current_state = fsm_transition(current_state, conditions);
     }
+
+
 
     return 0;
 }
